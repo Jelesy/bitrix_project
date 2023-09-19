@@ -35,7 +35,7 @@ $this->setFrameMode(true);
 			</span>
           </h3>
         </a>
-        <time class="news__publication-date" datetime="2019-11-08"><?echo $arItem["DISPLAY_ACTIVE_FROM"]?></time>
+        <time class="news__publication-date" datetime="<?echo $arItem["DISPLAY_ACTIVE_FROM"]?>"><?echo $arItem["DISPLAY_ACTIVE_FROM"]?></time>
       </div>
       <div class="news__illustration" style="background-image: url(<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>)"></div>
     </article>
