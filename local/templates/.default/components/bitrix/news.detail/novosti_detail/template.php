@@ -1,4 +1,7 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
+    die();
+}
+
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -12,75 +15,107 @@
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
 ?>
-<div class="news-list">
-<?if($arParams["DISPLAY_TOP_PAGER"]):?>
-	<?=$arResult["NAV_STRING"]?><br />
-<?endif;?>
-<?foreach($arResult["ITEMS"] as $arItem):?>
-	<?
-	$this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
-	$this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')));
-	?>
-	<p class="news-item" id="<?=$this->GetEditAreaId($arItem['ID']);?>">
-		<?if($arParams["DISPLAY_PICTURE"]!="N" && is_array($arItem["PREVIEW_PICTURE"])):?>
-			<?if(!$arParams["HIDE_LINK_WHEN_NO_DETAIL"] || ($arItem["DETAIL_TEXT"] && $arResult["USER_HAVE_ACCESS"])):?>
-				<a href="<?=$arItem["DETAIL_PAGE_URL"]?>"><img
-						class="preview_picture"
-						border="0"
-						src="<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>"
-						width="<?=$arItem["PREVIEW_PICTURE"]["WIDTH"]?>"
-						height="<?=$arItem["PREVIEW_PICTURE"]["HEIGHT"]?>"
-						alt="<?=$arItem["PREVIEW_PICTURE"]["ALT"]?>"
-						title="<?=$arItem["PREVIEW_PICTURE"]["TITLE"]?>"
-						style="float:left"
-						/></a>
-			<?else:?>
-				<img
-					class="preview_picture"
-					border="0"
-					src="<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>"
-					width="<?=$arItem["PREVIEW_PICTURE"]["WIDTH"]?>"
-					height="<?=$arItem["PREVIEW_PICTURE"]["HEIGHT"]?>"
-					alt="<?=$arItem["PREVIEW_PICTURE"]["ALT"]?>"
-					title="<?=$arItem["PREVIEW_PICTURE"]["TITLE"]?>"
-					style="float:left"
-					/>
-			<?endif;?>
-		<?endif?>
-		<?if($arParams["DISPLAY_DATE"]!="N" && $arItem["DISPLAY_ACTIVE_FROM"]):?>
-			<span class="news-date-time"><?echo $arItem["DISPLAY_ACTIVE_FROM"]?></span>
-		<?endif?>
-		<?if($arParams["DISPLAY_NAME"]!="N" && $arItem["NAME"]):?>
-			<?if(!$arParams["HIDE_LINK_WHEN_NO_DETAIL"] || ($arItem["DETAIL_TEXT"] && $arResult["USER_HAVE_ACCESS"])):?>
-				<a href="<?echo $arItem["DETAIL_PAGE_URL"]?>"><b><?echo $arItem["NAME"]?></b></a><br />
-			<?else:?>
-				<b><?echo $arItem["NAME"]?></b><br />
-			<?endif;?>
-		<?endif;?>
-		<?if($arParams["DISPLAY_PREVIEW_TEXT"]!="N" && $arItem["PREVIEW_TEXT"]):?>
-			<?echo $arItem["PREVIEW_TEXT"];?>
-		<?endif;?>
-		<?if($arParams["DISPLAY_PICTURE"]!="N" && is_array($arItem["PREVIEW_PICTURE"])):?>
-			<div style="clear:both"></div>
-		<?endif?>
-		<?foreach($arItem["FIELDS"] as $code=>$value):?>
-			<small>
-			<?=GetMessage("IBLOCK_FIELD_".$code)?>:&nbsp;<?=$value;?>
-			</small><br />
-		<?endforeach;?>
-		<?foreach($arItem["DISPLAY_PROPERTIES"] as $pid=>$arProperty):?>
-			<small>
-			<?=$arProperty["NAME"]?>:&nbsp;
-			<?if(is_array($arProperty["DISPLAY_VALUE"])):?>
-				<?=implode("&nbsp;/&nbsp;", $arProperty["DISPLAY_VALUE"]);?>
-			<?else:?>
-				<?=$arProperty["DISPLAY_VALUE"];?>
-			<?endif?>
-			</small><br />
-		<?endforeach;?>
-	</p>
-<?endforeach;?>
-<?if($arParams["DISPLAY_BOTTOM_PAGER"]):?>
-	<br /><?=$arResult["NAV_STRING"]?>
-<?endif;?>
-</div>
+
+<!-- Начало вывода -->
+<section class="article">
+  <header class="article__header">
+    <!-- вывод названия -->
+    <?if ($arParams["DISPLAY_NAME"] != "N" && $arResult["NAME"]): ?>
+      <h1 class="article__title"><?=$arResult["NAME"]?></h1>
+  	<?endif;?>
+    <!-- Вывод времени -->
+    <?if ($arParams["DISPLAY_DATE"] != "N" && $arResult["DISPLAY_ACTIVE_FROM"]): ?>
+      <time class="article__publication-date" datetime="<?=$arResult["DISPLAY_ACTIVE_FROM"]?>"><?=$arResult["DISPLAY_ACTIVE_FROM"]?></time>
+    <?endif;?>
+    <a class="back-link" href="/novosti/">
+      <svg class="icon" role="img">
+        <use xlink:href="<?=ASSET_PATH?>icons.svg#dropdown-arrow" /></svg>
+      Пресс-центр
+    </a>
+  </header>
+  <div class="article__content-wrapper">
+    <div class="article__content content-block">
+      <!-- Вывод картинки -->
+      <?if ($arParams["DISPLAY_PICTURE"] != "N" && is_array($arResult["DETAIL_PICTURE"])): ?>
+        <img src="<?=$arResult["DETAIL_PICTURE"]["SRC"]?>" alt="<?=$arResult["DETAIL_PICTURE"]["ALT"]?>">
+      <?endif?>
+      <!-- Вывод основного текста -->
+      <?if ($arResult["NAV_RESULT"]): ?>
+            <?if ($arParams["DISPLAY_TOP_PAGER"]): ?><?=$arResult["NAV_STRING"]?><br /><?endif;?>
+              <?echo $arResult["NAV_TEXT"]; ?>
+            <?if ($arParams["DISPLAY_BOTTOM_PAGER"]): ?><br /><?=$arResult["NAV_STRING"]?><?endif;?>
+            <?elseif (strlen($arResult["DETAIL_TEXT"]) > 0): ?>
+              <p> <?echo $arResult["DETAIL_TEXT"]; ?><p>
+            <?else: ?>
+              <?echo $arResult["PREVIEW_TEXT"]; ?>
+      <?endif?>
+    </div>
+  </div>
+  <div class="article__content-wrapper">
+    <div class="article__lead content-block">
+    <!-- Вывод лида   -->
+      <?if ($arParams["PROPERTY_CODE"] != "" && is_array($arResult["PROPERTIES"]) && $arResult["PROPERTIES"]["LEAD_TEXT"]["VALUE"]): ?>
+        <?echo $arResult["PROPERTIES"]["LEAD_TEXT"]["VALUE"]; ?>
+      <?endif?>
+    </div>
+  </div>
+  <div class="article__content-wrapper">
+    <div class="article__content content-block">
+      <!-- вывод картинки с ее текстом -->
+
+      <?if (is_array($arResult["PROPERTIES"]["MAIN_PICTURE"]) && $arResult["PROPERTIES"]["MAIN_PICTURE"]["VALUE"] != ''): ?>
+        <img src="<?=CFile::GetPath($arResult["PROPERTIES"]["MAIN_PICTURE"]["VALUE"])?>" alt="<?=$arResult["PROPERTIES"]["MAIN_PICTURE"]?>">
+        <?if ($arParams["PROPERTIES"]["MAIN_PICTURE_TEXT"] != "N" && is_array($arResult["PROPERTIES"]["MAIN_PICTURE_TEXT"])): ?>
+          <div class="image-caption">
+            <?echo $arResult["PROPERTIES"]["MAIN_PICTURE_TEXT"]["VALUE"] ?>
+          </div>
+      <?endif?>
+      <?endif?>
+      <?if ($arResult["PROPERTIES"]["QUOTE_TEXT"]["VALUE"]): ?>
+        <blockquote class="blockquote" data-controller="polar-lights-masked"
+          data-action="mousemove->polar-lights-masked#updateMaskPosition">
+          <!-- Цитата -->
+            <?echo $arResult["PROPERTIES"]["QUOTE_TEXT"]["VALUE"]; ?>
+            <div class="person-info">
+              <!-- Фото -->
+              <?if ($arResult["PROPERTIES"]["QUOTE_AUTHOR_PHOTO"]["VALUE"]): ?>
+                <img class="person-info__photo" src="<?=CFile::GetPath($arResult["PROPERTIES"]["QUOTE_AUTHOR_PHOTO"]["VALUE"])?>" alt="<?echo $arResult["PROPERTIES"]["QUOTE_AUTHOR_PHOTO"]["NAME"] ?>">
+              <?endif?>
+              <!--АВТОР-->
+              <div class="person-info__description">
+                <?if ($arResult["PROPERTIES"]["QUOTE_AUTHOR"]["VALUE"]): ?>
+                  <span class="person-info__name"><?echo $arResult["PROPERTIES"]["QUOTE_AUTHOR"]["VALUE"] ?></span>
+                <?endif?>
+                <?if ($arResult["PROPERTIES"]["QUOTE_AUTHOR"]["DESCRIPTION"]): ?>
+                <span class="person-info__position"><?echo $arResult["PROPERTIES"]["QUOTE_AUTHOR"]["DESCRIPTION"] ?></span>
+                <?endif?>
+              </div>
+            </div>
+          <div class="polar-lights polar-lights--dim">
+            <div class="polar-lights__mask" data-target="polar-lights-masked.mask"></div>
+          </div>
+
+        </blockquote>
+      <?endif?>
+      <!-- Дополнительные фото -->
+      <?if ($arResult["PROPERTIES"]["ADDITIONAL_PICTURES"]["VALUE"] != 0): ?>
+        <?foreach ($arResult["PROPERTIES"]["ADDITIONAL_PICTURES"]["VALUE"] as $arAddPicID): ?>
+          <img src="<?=CFile::GetPath($arAddPicID)?>" alt="<?echo $arResult["PROPERTIES"]["ADDITIONAL_PICTURES"]["NAME"] ?>">
+        <?endforeach;?>
+      <?endif?>
+      <!-- Списки и ссылки -->
+      <?if ($arResult["PROPERTIES"]["ADDITIONAL_LINKS"]["VALUE"] != 0): ?>
+        <?for ($j = 0; $j < count($arResult["PROPERTIES"]["ADDITIONAL_LINKS"]["VALUE"]); $j++): ?>
+        <?foreach ($arResult["PROPERTIES"]["ADDITIONAL_LINKS"]["VALUE"] as $arAddLink): ?>
+          <span>
+            <?echo $j + 1 ?> -
+            <a href="<?echo $arResult["PROPERTIES"]["ADDITIONAL_LINKS"]["VALUE"][$j] ?>" target="_blank"
+            rel="nofollow noopener"><?echo $arResult["PROPERTIES"]["ADDITIONAL_LINKS"]["VALUE"][$j] ?></a>
+          </span>
+        <?endforeach;?>
+        <?endfor;?>
+      <?endif?>
+      <br>
+    </div>
+  </div>
+</section>
